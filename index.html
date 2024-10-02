@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paradise Nursery</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
+        nav { background-color: #4CAF50; padding: 10px; color: white; }
+        nav a { color: white; margin: 0 10px; text-decoration: none; }
+        .container { padding: 20px; }
+        .card { border: 1px solid #ccc; border-radius: 5px; padding: 10px; margin: 10px; display: inline-block; width: 200px; }
+        .cart { border: 1px solid #ccc; border-radius: 5px; padding: 10px; margin: 10px; }
+        .cart-item { display: flex; justify-content: space-between; align-items: center; }
+        .hidden { display: none; }
+        .button { padding: 5px; background-color: #4CAF50; color: white; border: none; cursor: pointer; }
+        .button:hover { background-color: #45a049; }
+    </style>
+</head>
+<body>
+
+<nav>
+    <a href="#" onclick="showPage('landing')">Home</a>
+    <a href="#" onclick="showPage('products')">Products</a>
+    <a href="#" onclick="showPage('cart')">Cart <span id="cart-quantity">(0)</span></a>
+</nav>
+
+<div class="container">
+    <div id="landing" class="page">
+        <h1>Welcome to Paradise Nursery</h1>
+        <button class="button" onclick="showPage('products')">Shop Now</button>
+    </div>
+
+    <div id="products" class="page hidden">
+        <h2>Our Plants</h2>
+        <div class="card">
+            <img src="https://via.placeholder.com/150" alt="Aromatic Plant">
+            <h3>Basil</h3>
+            <p>Aromatic plant with a sweet flavor.</p>
+            <p>$5.00</p>
+            <button class="button" onclick="addToCart('Basil', 5)">Add to cart</button>
+        </div>
+        <div class="card">
+            <img src="https://via.placeholder.com/150" alt="Medicinal Plant">
+            <h3>Aloe Vera</h3>
+            <p>Known for its healing properties.</p>
+            <p>$7.00</p>
+            <button class="button" onclick="addToCart('Aloe Vera', 7)">Add to cart</button>
+        </div>
+        <!-- Add more plant cards as needed -->
+    </div>
+
+    <div id="cart" class="page hidden">
+        <h2>Your Cart</h2>
+        <div id="cart-items"></div>
+        <button class="button" onclick="checkout()">Checkout</button>
+        <button class="button" onclick="showPage('products')">Continue Shopping</button>
+    </div>
+</div>
+
+<script>
+    let cart = {};
+
+    function showPage(page) {
+        document.querySelectorAll('.page').forEach(p => p.classList.add('hidden'));
+        document.getElementById(page).classList.remove('hidden');
+        if (page === 'cart') {
+            updateCart();
+        }
+    }
+
+    function addToCart(name, price) {
+        if (!cart[name]) {
+            cart[name] = { price: price, quantity: 0 };
+        }
+        cart[name].quantity++;
+        updateCartQuantity();
+    }
+
+    function updateCartQuantity() {
+        const quantity = Object.values(cart).reduce((sum, item) => sum + item.quantity, 0);
+        document.getElementById('cart-quantity').textContent = `(${quantity})`;
+    }
+
+    function updateCart() {
+        const cartItemsContainer = document.getElementById('cart-items');
+        cartItemsContainer.innerHTML = '';
+        for (const [name, item] of Object.entries(cart)) {
+            const totalCost = item.price * item.quantity;
+            cartItemsContainer.innerHTML += `
+                <div class="cart-item">
+                    <span>${name} - $${item.price} x ${item.quantity} = $${totalCost}</span>
+                    <button class="button" onclick="changeQuantity('${name}', -1)">-</button>
+                    <button class="button" onclick="changeQuantity('${name}', 1)">+</button>
+                    <button class="button" onclick="removeFromCart('${name}')">Delete</button>
+                </div>
+            `;
+        }
+    }
+
+    function changeQuantity(name, delta) {
+        if (cart[name]) {
+            cart[name].quantity += delta;
+            if (cart[name].quantity <= 0) {
+                delete cart[name];
+            }
+            updateCart();
+            updateCartQuantity();
+        }
+    }
+
+    function removeFromCart(name) {
+        delete cart[name];
+        updateCart();
+        updateCartQuantity();
+    }
+
+    function checkout() {
+        alert('Checkout not implemented in this demo.');
+        cart = {};
+        updateCartQuantity();
+        showPage('products');
+    }
+    
+    // Initialize the landing page
+    showPage('landing');
+</script>
+
+</body>
+</html>
